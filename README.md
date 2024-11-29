@@ -58,6 +58,8 @@ Please check requirements.txt to see all.
    uvicorn main:app --reload
    ```
 
+You also need to set up a MongoDB database and create the database + collections (messages, payments, settings, threads, users).
+
 ## Contributing
 
 Contributions are welcome. 
