@@ -64,45 +64,48 @@ async function postAndStreamSSE(url, payload, result_element) {
     }
 }
 
-document.querySelector("#send_message").addEventListener("click", async function() {
-    const formData = new FormData(document.querySelector('#chat_form'));
-    const payload = {};
-    formData.forEach((value, key) => {
-        payload[key] = value;
+if(document.querySelector("#send_message")){
+
+    document.querySelector("#send_message").addEventListener("click", async function() {
+        const formData = new FormData(document.querySelector('#chat_form'));
+        const payload = {};
+        formData.forEach((value, key) => {
+            payload[key] = value;
+        });
+        console.log('Payload:', payload); // Log the payload
+        await postAndStreamSSE('/model/streaming_response', payload, document.querySelector('#chat'));
     });
-    console.log('Payload:', payload); // Log the payload
-    await postAndStreamSSE('/model/streaming_response', payload, document.querySelector('#chat'));
-});
+}
 
-document.body.addEventListener('htmx:configRequest', function(event) {
-    const accessToken = getCookie('access_token');
-    
-    if (accessToken) {
-        event.detail.headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-});
-
-let form_reg = document.querySelector('#register');
-if(form_reg){
-    form_reg.addEventListener('input', function(e){
-        checkForm();
+    document.body.addEventListener('htmx:configRequest', function(event) {
+        const accessToken = getCookie('access_token');
+        
+        if (accessToken) {
+            event.detail.headers['Authorization'] = `Bearer ${accessToken}`;
+        }
     });
 
-    function checkForm(){
-        password1 = document.querySelector('input[name="password1"]');
-        password2 = document.querySelector('#password2');
-        username = document.querySelector('input[name="username"]');
-        checkbox = document.querySelector('input[type="checkbox"]');
-        button = document.querySelector('button[type="submit"]');
-        if(checkbox.checked == false || password1.value != password2.value || password1.value == "" || password2.value == "" || username.value == ""){
-            button.disabled = true;
-            button.classList.add('cursor-not-allowed');
-        } else {
-            button.disabled = false;
-            button.classList.remove('cursor-not-allowed');
+    let form_reg = document.querySelector('#register');
+    if(form_reg){
+        form_reg.addEventListener('input', function(e){
+            checkForm();
+        });
+
+        function checkForm(){
+            password1 = document.querySelector('input[name="password1"]');
+            password2 = document.querySelector('#password2');
+            username = document.querySelector('input[name="username"]');
+            checkbox = document.querySelector('input[type="checkbox"]');
+            button = document.querySelector('button[type="submit"]');
+            if(checkbox.checked == false || password1.value != password2.value || password1.value == "" || password2.value == "" || username.value == ""){
+                button.disabled = true;
+                button.classList.add('cursor-not-allowed');
+            } else {
+                button.disabled = false;
+                button.classList.remove('cursor-not-allowed');
+            }
         }
     }
-}
 
 let response_info = document.querySelector('#response_info');
 
