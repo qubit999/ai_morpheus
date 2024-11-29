@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-4">{{ title }}</h1>
+{% if current_user != False %}
+    <div><ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        <li><a href="{{ url_for('account') }}">Account</a></li>
+    </ul></div>
+    <div>Welcome, {{ current_user.username }}!</div>
+
+    <div id="response_info" class="hidden"></div>
+    <form id="update_user" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" value="{{ current_user.username }}">
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email" value="{{ current_user.email }}" required>
+        <label for="phone_number">Phone Number</label>
+        <input type="tel" name="phone_number" id="phone_number" value="{{ current_user.phone_number }}">
+        <label for="description">Description</label>
+        <textarea name="description" id="description">{{ current_user.description }}</textarea>
+        <button type="submit" hx-post="/user/update/" hx-target="#response_info" hx-swap="innerHTML" hx-ext="json-enc" hx-on:click="htmx.removeClass('#info', 'hidden');">Update</button>
+    </form>
+
+{% else %}
+<ul>
+    <li><a href="{{ url_for('login') }}">Login</a></li>
+    <li><a href="{{ url_for('register') }}">Register</a></li>
+</ul>
+{% endif %}
+
+{% endblock %}

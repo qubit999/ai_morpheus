@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if current_user == False %}
+<h1 class="">{{ title }}</h1>
+<ul>
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li><a href="{{ url_for('login') }}">Login</a></li>
+    <li><a href="{{ url_for('register') }}">Register</a></li>
+</ul>
+<div id="response_info" class="hidden"></div>
+<form id="register" class="">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="email" name="email" placeholder="Your email" required class="">
+    <input type="tel" name="phone_number" placeholder="Phonenumber (optional)" class="">
+    <input type="text" name="username" placeholder="Username" class="">
+    <input type="password" name="password1" placeholder="Your password" required class="">
+    <input type="password" id="password2" placeholder="Confirm your password" required class="">
+    <div class="">
+        <input type="checkbox" id="tos" value="tos" class="">
+        <label for="tos" class="">I agree to TOS.</label>
+    </div>
+    <button disabled type="submit" hx-post="/users/create/" hx-target="#response_info" hx-swap="beforeend" hx-ext="json-enc" hx-on:click="htmx.removeClass('#info', 'hidden');" class="">Register</button>
+</form>
+{% else %}
+<p>You're already logged in. Go to <a href="/">index.</a></p>
+{% endif %}
+
+{% endblock %}

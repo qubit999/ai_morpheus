@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if current_user == False %}
+<h1 class="">{{ title }}</h1>
+<ul>
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li><a href="{{ url_for('login') }}">Login</a></li>
+    <li><a href="{{ url_for('register') }}">Register</a></li>
+</ul>
+<div id="response_info" class="hidden"></div>
+<form id="login" hx-post="/token/" class="">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="text" name="email" placeholder="Email" required class="">
+    <input type="password" name="password" placeholder="Password" required class="">
+    <button type="submit" name="submit" value="True" hx-on:click="" class="">Send</button>
+</form>
+{% else %}
+<p>You're already logged in. Go to <a href="/">index.</a></p>
+{% endif %}
+
+{% endblock %}

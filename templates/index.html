@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-4">{{ title }}</h1>
+{% if current_user != False %}
+    <div><ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        <li><a href="{{ url_for('account') }}">Account</a></li>
+    </ul></div>
+    <div id="response_info" class="hidden"></div>
+    <div>Welcome, {{ current_user.username }}!</div>
+
+    <div id="chat"></div>
+    <form id="chat_form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="model" value="llama3.1:8b">
+        <input type="text" id="messages" name="messages" placeholder="Type a message" required>
+    </form>
+    <button id="send_message" type="submit">Send</button>
+{% else %}
+<ul>
+    <div id="response_info" class="hidden"></div>
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li><a href="{{ url_for('login') }}">Login</a></li>
+    <li><a href="{{ url_for('register') }}">Register</a></li>
+</ul>
+{% endif %}
+
+{% endblock %}
