@@ -148,6 +148,8 @@ class AI():
                 ]
             }
 
+            logging.debug(f"Messages: {messages}")
+
             agent_executor = create_react_agent(llm, tools=tools, checkpointer=memory)
             config = {"configurable": {"thread_id": "abc123"}}
 
