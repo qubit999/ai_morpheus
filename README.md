@@ -1,6 +1,6 @@
 # AI Morpheus (in development)
 
-AI Morpheus is going to be a web app with similar functions like ChatGPT. At this moment, there is no frontend-design, just basic html/css.
+AI Morpheus is going to be a web app with similar features like ChatGPT. At this moment, there is no frontend-design, just basic html/css.
 
 ## Features
 - **Register**
