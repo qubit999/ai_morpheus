@@ -137,11 +137,16 @@ class Controller:
         response = await self.ai.get_response(messages=messages, model=model)
         return response
 
-    async def get_streaming_response(self, messages: List, model: str, current_user: Annotated[str, Depends(get_current_user)]):
+    async def get_streaming_response(self, messages: List, model: str, advanced: str, current_user: Annotated[str, Depends(get_current_user)]):
         jwt_user = await self.get_current_user(current_user)
-        async for delta in self.ai.get_stream_response(messages=messages, model=model):
-            if delta is not None:
-                yield delta
+        if advanced == "true":
+            async for delta in self.ai.get_stream_response(messages=messages, model=model):
+                if delta is not None:
+                    yield delta
+        else:
+            async for delta in self.ai.get_stream_response_no_advanced(messages=messages, model=model):
+                if delta is not None:
+                    yield delta
 
     async def get_models(self, current_user: Annotated[str, Depends(get_current_user)]):
         jwt_user = await self.get_current_user(current_user)

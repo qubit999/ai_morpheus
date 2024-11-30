@@ -215,8 +215,9 @@ async def get_response(request: Request, token: Annotated[str, Depends(controlle
     request_data = await request.json()
     messages = request_data.get("messages")
     model = request_data.get("model")
+    advanced = request_data.get("advanced")
     async def event_stream():
-        async for delta in controller.get_streaming_response(messages, model, current_user=token):
+        async for delta in controller.get_streaming_response(messages, model, advanced, current_user=token):
             try:
                 #json_data = JSONTools(delta).convert_to_json()
                 #result = JSONTools(json_data).clean_json
