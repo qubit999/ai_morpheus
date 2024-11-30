@@ -51,14 +51,15 @@ Please check requirements.txt to see all.
 
 ## Installation
 
-   ```bash
-   git clone https://github.com/yourusername/ai_morpheus.git
-   cd ai_morpheus
-   pip install -r requirements.txt
-   uvicorn main:app --reload
-   ```
+Ollama must be installed. So first, [download Ollama](https://ollama.com/download). 
+In Terminal use this command to install Qwen2.5 which is set by default:
+
+```bash
+ollama run qwen2.5:7b
+```
 
 You also need to set up a MongoDB database and create the database + collections (messages, payments, settings, threads, users).
+To install mongodb, run these commands:
 
    ```bash
    brew tap mongodb/brew
@@ -66,7 +67,23 @@ You also need to set up a MongoDB database and create the database + collections
    brew install mongodb-community@8.0
    ```
 
-To create the collections, you can use [MongoDB Compass](https://www.mongodb.com/try/download/compass).
+To create the collections, you can use [MongoDB Compass](https://www.mongodb.com/try/download/compass) for simplicity.
+
+Then you can clone and run the project:
+
+   ```bash
+   git clone https://github.com/yourusername/ai_morpheus.git
+   cd ai_morpheus
+   pip install -r requirements.txt
+   uvicorn main:app --reload
+   ```
+
+You can access the application with `http://127.0.0.1:8000` in your prefered browser.
+
+To play around with the models, you need to create an account first. So open `http://127.0.0.1:8000` and click on register.
+You can set the model manually by editing `<input type="hidden" name="model" value="qwen2.5:7b">` in `templates\index.html`. 
+
+If you would like, you can replace the model for testing. Download any model from [Ollama.com](https://ollama.com) and replace the value as described above.
 
 ## Contributing
 
