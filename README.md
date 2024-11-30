@@ -7,7 +7,7 @@ AI Morpheus is going to be a web app with similar features like ChatGPT. At this
 - **Login**
 - **Modify Account**
 - **Create Inference**
-- **Tool Calling**: DuckDuckGo Search, PythonREPL
+- **Tool Calling**: Google Search, Fetch URL Content, PythonREPL
 - **Streaming Responses**
 
 Next (in development):
@@ -59,6 +59,14 @@ Please check requirements.txt to see all.
    ```
 
 You also need to set up a MongoDB database and create the database + collections (messages, payments, settings, threads, users).
+
+   ```bash
+   brew tap mongodb/brew
+   brew update
+   brew install mongodb-community@8.0
+   ```
+
+To create the collections, you can use [MongoDB Compass](https://www.mongodb.com/try/download/compass).
 
 ## Contributing
 
