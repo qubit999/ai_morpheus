@@ -135,7 +135,7 @@ class GoogleSearchRun:
             The content of the search results in markdown format, or an error message if an exception occurs.
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.num_search_results = int(os.getenv("NUM_SEARCH_RESULTS"))
 
     def run(self, query: str):
