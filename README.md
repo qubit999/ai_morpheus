@@ -11,7 +11,7 @@ AI Morpheus is going to be a web app with similar features like ChatGPT. At this
 - **Streaming Responses**
 
 Next (in development):
-- **Managing Inference Threads(CRUD)**
+- **Managing Inference Threads (CRUD)**
 - **Frontend Design**
 - **Payment Integration**
 - **API Key Management**
