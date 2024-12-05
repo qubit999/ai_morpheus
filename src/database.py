@@ -1,24 +1,35 @@
 import os
-from pymongo import MongoClient
 from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo.cursor import Cursor
 from pymongo.results import UpdateResult
-from bson import ObjectId
 from datetime import datetime, timezone
 from pydantic import BaseModel, EmailStr, StrictBool
 from dotenv import load_dotenv
+
 load_dotenv()
 
+
 class User(BaseModel):
+    """
+    User model representing a user in the system.
+
+    Attributes:
+        email (str | EmailStr): The email address of the user.
+        phone_number (str | None): The phone number of the user. Defaults to None.
+        username (str | None): The username of the user. Defaults to None.
+        disabled (StrictBool | None): Indicates if the user is disabled. Defaults to False.
+        description (str | None): A brief description of the user. Defaults to None.
+    """
+
     email: str | EmailStr
     phone_number: str | None = None
     username: str | None = None
     disabled: StrictBool | None = False
     description: str | None = None
 
+
 class UserInDB(User):
     """
-    UserInDB is a class that extends the User class to include additional fields 
+    UserInDB is a class that extends the User class to include additional fields
     specific to database storage.
 
     Attributes:
@@ -29,12 +40,14 @@ class UserInDB(User):
         last_ip (str | None): The IP address used during the last login. Defaults to None.
         role (str | None): The role of the user. Defaults to "user".
     """
+
     password1: str
     registration_date: datetime | None = None
     last_login: datetime | None = None
     registration_ip: str | None = None
     last_ip: str | None = None
     role: str | None = "user"
+
 
 class Item(UserInDB):
     """
@@ -44,8 +57,10 @@ class Item(UserInDB):
         item_id (str): The unique identifier for the item.
         owner (str): The owner of the item.
     """
+
     item_id: str
     owner: str
+
 
 class Thread(BaseModel):
     """
@@ -59,12 +74,14 @@ class Thread(BaseModel):
         last_updated (datetime | None): Timestamp when the thread was last updated, if applicable.
         disabled (StrictBool): Indicates whether the thread is disabled. Defaults to False.
     """
+
     thread_id: str
     title: str
     created_by: str
     created_at: datetime
     last_updated: datetime | None = None
     disabled: StrictBool = False
+
 
 class Message(BaseModel):
     """
@@ -77,11 +94,13 @@ class Message(BaseModel):
         created_at (datetime): The timestamp when the message was created.
         thread_id (str): The identifier of the thread to which the message belongs.
     """
+
     message_id: str
     content: str
     created_by: str
     created_at: datetime
     thread_id: str
+
 
 class Payment(BaseModel):
     """
@@ -94,11 +113,13 @@ class Payment(BaseModel):
         date (datetime): The date when the payment was made.
         status (str | None): The status of the payment, which can be None.
     """
+
     amount: float
     currency: str
     paid_by: str
     date: datetime
     status: str | None = None
+
 
 class Setting(BaseModel):
     """
@@ -109,9 +130,11 @@ class Setting(BaseModel):
         key (str): The key or name of the setting.
         value (str): The value associated with the key.
     """
+
     created_by: str
     key: str
     value: str
+
 
 class Database:
     """
@@ -156,6 +179,7 @@ class Database:
         update_setting(created_by: str, field: str, value):
             Updates a setting's field in the settings collection based on the provided created_by identifier.
     """
+
     def __init__(self):
         self.client = AsyncIOMotorClient(os.getenv("MONGO_URI") or "mongodb://localhost:27017")
         self.db = self.client[os.getenv("MONGO_DB") or "db"]
@@ -233,27 +257,31 @@ class Database:
             return await self.threads.update_one({"thread_id": thread_id}, {"$set": {field: value}})
         except Exception as e:
             return f"Error updating thread: {e}"
-        
+
     async def add_message_to_thread(self, thread_id: str, message: str, user_id: str):
         try:
             new_message = {
                 "thread_id": thread_id,
                 "content": message,
                 "created_by": user_id,
-                "created_at": datetime.now(timezone.utc)
+                "created_at": datetime.now(timezone.utc),
             }
             result = await self.db.messages.insert_one(new_message)
             await self.db.threads.update_one(
                 {"thread_id": thread_id},
-                {"$set": {"last_updated": datetime.now(timezone.utc)}}
+                {"$set": {"last_updated": datetime.now(timezone.utc)}},
             )
             return result.inserted_id
         except Exception as e:
             return f"Error adding message to thread: {e}"
-    
+
     async def get_thread_messages(self, thread_id: str, created_by: str) -> list | None:
         try:
-            messages = await self.db.messages.find({"thread_id": thread_id, "created_by": created_by}).sort("created_at", 1).to_list(None)
+            messages = (
+                await self.db.messages.find({"thread_id": thread_id, "created_by": created_by})
+                .sort("created_at", 1)
+                .to_list(None)
+            )
             return messages
         except Exception as e:
             return f"Error retrieving thread messages: {e}"

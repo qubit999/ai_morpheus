@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "ai_morpheus"
+version = "0.0.1"
+description = "Web App with Front- and Backend for AI"
+readme = "README.md"
+license = "MIT"
+authors = [
+    "Alexander Slatina"
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[project.urls]
+homepage = "https://clandestine.army"
+repository = "https://github.com/qubit999/ai_morpheus"
+
+[tool.black]
+line-length = 100
+
+[tool.pylint.main]
+max-line-length = 100
+py-version = "3.12"
+
+[tool.pylint.messages_control]
+enable = ["E", "F"]
+extend-enable = ["B"]
+disable = ["B008", "E501"]
+
+[tool.pylint.file_ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["E402"]

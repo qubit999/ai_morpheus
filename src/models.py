@@ -1,6 +1,7 @@
 import os
 from pydantic import BaseModel, EmailStr
-from typing import List, Dict
+from typing import List
+
 
 class Message(BaseModel):
     """
@@ -10,8 +11,10 @@ class Message(BaseModel):
         role (str): The role of the message sender (e.g., user, system).
         content (str): The content of the message.
     """
+
     role: str
     content: str
+
 
 class RequestModel(BaseModel):
     """
@@ -21,8 +24,10 @@ class RequestModel(BaseModel):
         messages (List[Message]): A list of Message objects.
         model (str): The identifier of the model to be used.
     """
+
     messages: List[Message]
     model: str
+
 
 class LoginUser(BaseModel):
     """
@@ -34,10 +39,12 @@ class LoginUser(BaseModel):
         password (str): The password of the user.
         submit (str): The submit action.
     """
+
     csrf_token: str
     email: EmailStr
     password: str
     submit: str
+
 
 class CsrfSettings(BaseModel):
     """
@@ -47,5 +54,6 @@ class CsrfSettings(BaseModel):
         secret_key (str): The secret key for CSRF protection.
         cookie_key (str): The cookie key for CSRF protection.
     """
+
     secret_key: str = os.getenv("CSRF_SECRET_KEY")
     cookie_key: str = os.getenv("CSRF_COOKIE")

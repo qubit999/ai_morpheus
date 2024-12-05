@@ -1,25 +1,24 @@
+from ai import AI
+from database import Database, User, UserInDB, Thread, Setting
+from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta, timezone
 import time
-from typing import Annotated
-from bson import ObjectId, json_util
+from typing import Annotated, List
+from bson import ObjectId
 import jwt
 from jwt import InvalidTokenError
-import asyncio
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from pydantic import BaseModel
 import logging
-logging.getLogger('passlib').setLevel(logging.ERROR)
 
-from dotenv import load_dotenv
+logging.getLogger("passlib").setLevel(logging.ERROR)
+
+
 load_dotenv()
 
-from database import Database, User, UserInDB, Thread, Payment, Setting
-from ai import *
-from helper import *
-from models import *
 
 class Token(BaseModel):
     """
@@ -29,8 +28,10 @@ class Token(BaseModel):
         access_token (str): The access token.
         token_type (str): The type of the token.
     """
+
     access_token: str
     token_type: str
+
 
 class TokenData(BaseModel):
     """
@@ -39,12 +40,15 @@ class TokenData(BaseModel):
     Attributes:
         username (str | None): The username associated with the token.
     """
+
     username: str | None = None
+
 
 class QueryParams:
     """
     Utility class for handling query parameters.
     """
+
     def make_bool(self, value):
         """
         Converts a value to a boolean.
@@ -55,7 +59,7 @@ class QueryParams:
         Returns:
             bool: The converted boolean value.
         """
-        return value.lower() in ('true', '1', 't', 'y', 'yes')
+        return value.lower() in ("true", "1", "t", "y", "yes")
 
     def __init__(self, boolable: str):
         """
@@ -65,6 +69,7 @@ class QueryParams:
             boolable (str): The string to be converted to a boolean.
         """
         self.boolable = self.make_bool(boolable)
+
 
 class Controller:
     """
@@ -109,8 +114,8 @@ class Controller:
             Retrieves the settings for the current user.
         update_setting:
             Updates the settings for the current user.
-     """
-            
+    """
+
     def __init__(self):
         """
         Initializes the Controller class with necessary dependencies and configurations.
@@ -162,9 +167,19 @@ class Controller:
                 raise credentials_exception
             token_data = TokenData(username=email)
         except InvalidTokenError:
-            raise credentials_exception
+            raise credentials_exception from None
         user = await self.db.get_user(email=token_data.username)
-        exclude_list = ["password1", "password2", "disabled", "registration_ip", "registration_date", "last_login", "last_ip", "_id", "role"]
+        exclude_list = [
+            "password1",
+            "password2",
+            "disabled",
+            "registration_ip",
+            "registration_date",
+            "last_login",
+            "last_ip",
+            "_id",
+            "role",
+        ]
         for key in exclude_list:
             if key in user:
                 user.pop(key)
@@ -181,55 +196,81 @@ class Controller:
             return False
         token_data = TokenData(username=email)
         return token_data
-    
+
     async def create_user(self, user: UserInDB, ip: str):
         user.registration_date = datetime.now(timezone.utc)
         user.registration_ip = ip
-        user = UserInDB(**user.model_dump(exclude={"password1"}), password1=await self.get_password_hash(user.password1))
+        user = UserInDB(
+            **user.model_dump(exclude={"password1"}),
+            password1=await self.get_password_hash(user.password1),
+        )
         return await self.db.create_user(user)
-    
-    async def update_user(self, email, user, current_user: Annotated[str, Depends(get_current_user)]):
+
+    async def update_user(
+        self, email, user, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
         if jwt_user["email"] != email:
             return False
-        user_ = await self.db.get_user(email=email)
-        user_dict = {k: v for k, v in user.items() if k not in ["disabled", "registration_ip", "registration_date", "csrf_token"]}
-        for key, value in user_dict.items():
+        # user_ = await self.db.get_user(email=email)
+        user_dict = {
+            k: v
+            for k, v in user.items()
+            if k not in ["disabled", "registration_ip", "registration_date", "csrf_token"]
+        }
+        for key, _value in user_dict.items():
             if key == "_id":
                 continue
             else:
                 result = await self.db.update_user(email=email, field=key, value=user_dict[key])
                 print(result)
-    
-    async def disable_user(self, user: UserInDB, current_user: Annotated[str, Depends(get_current_user)]):
+
+    async def disable_user(
+        self, user: UserInDB, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
         if jwt_user["username"] != user.username:
             return False
         user_ = self.db.get_user(username=user.username)
         if await self.verify_password(user.password1, user_["password1"]):
             await self.db.update_user(username=user.username, field="disabled", value=True)
-    
-    async def get_response(self, messages: List, model: str, current_user: Annotated[str, Depends(get_current_user)]):
-        jwt_user = await self.get_current_user(current_user)
+
+    async def get_response(
+        self,
+        messages: List,
+        model: str,
+        current_user: Annotated[str, Depends(get_current_user)],
+    ):
+        await self.get_current_user(current_user)
         response = await self.ai.get_response(messages=messages, model=model)
         return response
 
-    async def get_streaming_response(self, messages: List, model: str, advanced: str, current_user: Annotated[str, Depends(get_current_user)]):
-        jwt_user = await self.get_current_user(current_user)
+    async def get_streaming_response(
+        self,
+        messages: List,
+        model: str,
+        advanced: str,
+        current_user: Annotated[str, Depends(get_current_user)],
+    ):
+        await self.get_current_user(current_user)
         if advanced == "true":
             async for delta in self.ai.get_stream_response(messages=messages, model=model):
                 if delta is not None:
                     yield delta
         else:
-            async for delta in self.ai.get_stream_response_no_advanced(messages=messages, model=model):
+            async for delta in self.ai.get_stream_response_no_advanced(
+                messages=messages, model=model
+            ):
                 if delta is not None:
                     yield delta
 
     async def get_models(self, current_user: Annotated[str, Depends(get_current_user)]):
-        jwt_user = await self.get_current_user(current_user)
+        await self.get_current_user(current_user)
         return await self.ai.get_models()
-                
-    async def create_thread(self, thread: Thread, current_user: Annotated[str, Depends(get_current_user)]):
+
+    async def create_thread(
+        self, thread: Thread, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
         thread.thread_id = jwt_user["username"] + str(time.time())
         thread.title = str(datetime.now(timezone.utc))
@@ -240,13 +281,16 @@ class Controller:
     async def get_threads(self, current_user: Annotated[str, Depends(get_current_user)]):
         jwt_user = await self.get_current_user(current_user)
         return await self.db.get_threads(created_by=jwt_user["username"])
-    
-    async def get_thread(self, thread_id: str, current_user: Annotated[str, Depends(get_current_user)]):
+
+    async def get_thread(
+        self, thread_id: str, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
         return await self.db.get_threads(thread_id=thread_id, created_by=jwt_user["username"])
 
-
-    async def update_thread(self, thread: Thread, current_user: Annotated[str, Depends(get_current_user)]):
+    async def update_thread(
+        self, thread: Thread, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
         thread.created_by = jwt_user["username"]
         thread.last_updated = datetime.now(timezone.utc)
@@ -255,33 +299,50 @@ class Controller:
             if key == "created_by" or key == "created_at" or key == "thread_id":
                 continue
             await self.db.update_thread(created_by=jwt_user["username"], field=key, value=value)
-    
 
-    async def disable_thread(self, thread_id: str, current_user: Annotated[str, Depends(get_current_user)]):
+    async def disable_thread(
+        self, thread_id: str, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
-        thread_username = await self.db.get_threads(thread_id=thread_id, created_by=jwt_user["username"])["created_by"]
+        thread_username = await self.db.get_threads(
+            thread_id=thread_id, created_by=jwt_user["username"]
+        )["created_by"]
         if thread_username != jwt_user["username"]:
             raise HTTPException(status_code=403, detail="Not authorized to disable this thread")
         return await self.db.update_thread(thread_id=thread_id, field="disabled", value=True)
-    
-    async def add_message_to_thread(self, thread_id: str, message: str, current_user: Annotated[str, Depends(get_current_user)]):
+
+    async def add_message_to_thread(
+        self,
+        thread_id: str,
+        message: str,
+        current_user: Annotated[str, Depends(get_current_user)],
+    ):
         jwt_user = await self.get_current_user(current_user)
         timestamp = datetime.now(timezone.utc)
         await self.db.update_thread(thread_id=thread_id, field="last_updated", value=timestamp)
         await self.db.update_thread(thread_id=thread_id, field="title", value=str(timestamp))
         return await self.db.add_message_to_thread(thread_id, message, jwt_user["username"])
-    
-    async def get_messages_from_thread(self, thread_id: str, current_user: Annotated[str, Depends(get_current_user)]):
+
+    async def get_messages_from_thread(
+        self, thread_id: str, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
-        return await self.db.get_thread_messages(thread_id=thread_id, created_by=jwt_user["username"])
-    
+        return await self.db.get_thread_messages(
+            thread_id=thread_id, created_by=jwt_user["username"]
+        )
+
     async def get_setting(self, current_user: Annotated[str, Depends(get_current_user)]):
         jwt_user = await self.get_current_user(current_user)
         return await self.db.get_setting(created_by=jwt_user["username"])
-    
-    async def update_setting(self, setting: Setting, current_user: Annotated[str, Depends(get_current_user)]):
+
+    async def update_setting(
+        self, setting: Setting, current_user: Annotated[str, Depends(get_current_user)]
+    ):
         jwt_user = await self.get_current_user(current_user)
-        return await self.db.update_setting(created_by=jwt_user["username"], field=setting.key, value=setting.value)
-    
+        return await self.db.update_setting(
+            created_by=jwt_user["username"], field=setting.key, value=setting.value
+        )
+
+
 if __name__ == "main":
     pass

@@ -2,7 +2,7 @@
 
 AI Morpheus is going to be a web app with similar features like ChatGPT. At this moment, there is no frontend-design, just basic html/css.
 
-## Features
+# Features
 - **Register**
 - **Login**
 - **Modify Account**
@@ -11,12 +11,12 @@ AI Morpheus is going to be a web app with similar features like ChatGPT. At this
 - **Streaming Responses**
 
 Next (in development):
-- **Managing Inference Threads (CRUD)**
+- **Managing Inference Threads(CRUD)**
 - **Frontend Design**
 - **Payment Integration**
 - **API Key Management**
 
-## Dependencies
+# Dependencies
 
 Some of the dependencies:
 - **FastAPI**
@@ -30,7 +30,7 @@ Some of the dependencies:
 
 Please check requirements.txt to see all.
 
-## Project Structure
+# Project Structure
 
 - **main.py**: Entry point for the application.
 - **ai.py, ai_tools.py**: AI-related functionalities and tools.
@@ -40,25 +40,25 @@ Please check requirements.txt to see all.
 - **models.py**: Database models and schemas.
 - **.env**: Configuration file.
 
-### Static Files
+# Static Files
 
 - **static/css/styles.css**: Main stylesheet for the application.
 - **static/js/script.js, test.js**: JavaScript files for client-side logic and testing.
 
-### Templates
+# Templates
 
 - **templates/account.html, base.html, index.html, login.html, logout.html, register.html**: HTML templates for various pages.
 
-## Installation
+# Installation
 
-Ollama must be installed. So first, [download Ollama](https://ollama.com/download). 
+Ollama must be installed. So first, [download Ollama](https: // ollama.com/download).
 In Terminal use this command to install Qwen2.5 which is set by default:
 
 ```bash
-ollama run qwen2.5:7b
+ollama run qwen2.5: 7b
 ```
 
-You also need to set up a MongoDB database and create the database + collections (messages, payments, settings, threads, users).
+You also need to set up a MongoDB database and create the database + collections(messages, payments, settings, threads, users).
 To install mongodb, run these commands:
 
    ```bash
@@ -67,21 +67,21 @@ To install mongodb, run these commands:
    brew install mongodb-community@8.0
    ```
 
-To create the collections, you can use [MongoDB Compass](https://www.mongodb.com/try/download/compass) for simplicity.
+To create the collections, you can use[MongoDB Compass](https: // www.mongodb.com/try / download/compass) for simplicity.
 
 Then you can clone and run the project:
 
    ```bash
-   git clone https://github.com/yourusername/ai_morpheus.git
+   git clone https: // github.com/yourusername/ai_morpheus.git
    cd ai_morpheus
-   pip install -r requirements.txt
-   uvicorn main:app --reload
+   pip install - r requirements.txt
+   uvicorn main: app - -reload
    ```
 
-You can access the application with `http://127.0.0.1:8000` in your prefered browser.
+You can access the application with `http: // 127.0.0.1: 8000` in your prefered browser.
 
-To play around with the models, you need to create an account first. So open `http://127.0.0.1:8000` and click on register.
-You can set the model manually by editing `<input type="hidden" name="model" value="qwen2.5:7b">` in `templates\index.html`. 
+To play around with the models, you need to create an account first. So open `http: // 127.0.0.1: 8000` and click on register.
+You can set the model manually by editing ` < input type = "hidden" name = "model" value = "qwen2.5:7b" > ` in `templates\index.html`. 
 
 If you would like, you can replace the model for testing. Download any model from [Ollama.com](https://ollama.com) and replace the value as described above.
 
