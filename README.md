@@ -55,7 +55,7 @@ Ollama must be installed. So first, [download Ollama](https://ollama.com/downloa
 In Terminal use this command to install Qwen2.5 which is set by default:
 
 ```bash
-ollama run qwen2.5: 7b
+ollama run qwen2.5:7b
 ```
 
 You also need to set up a MongoDB database and create the database + collections(messages, payments, settings, threads, users).
