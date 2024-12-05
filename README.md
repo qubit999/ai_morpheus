@@ -75,7 +75,7 @@ Then you can clone and run the project:
    git clone https://github.com/yourusername/ai_morpheus.git
    cd ai_morpheus
    pip install -r requirements.txt
-   uvicorn main: app --reload
+   uvicorn main:app --reload
    ```
 
 You can access the application with `http://127.0.0.1:8000` in your prefered browser.
