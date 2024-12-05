@@ -36,6 +36,7 @@ from fastapi.responses import (
 )
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from pydantic_settings import BaseSettings
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -43,20 +44,19 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-
 load_dotenv()
-
-# own classes:
-
-# end own classes
 
 controller = Controller()
 templates = Jinja2Templates(directory="templates")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
+CSRF_SECRET_KEY = os.getenv("CSRF_SECRET_KEY")
+
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
+class CsrfSettings(BaseSettings):
+    secret_key: str = CSRF_SECRET_KEY
 
 @CsrfProtect.load_config
 def get_csrf_config():
