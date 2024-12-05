@@ -4,32 +4,41 @@ import json
 from typing import Annotated, get_type_hints
 
 class AITools():
+    """
+    AITools class provides various utility methods.
+    Methods
+    -------
+    __init__():
+        Initializes the AITools class instance.
+    greet_user(user: Annotated[str, "This is the name of the user"]) -> str:
+        Greets the user with a personalized message.
+        Parameters:
+        user (str): This is the name of the user.
+        Returns:
+        str: Greeting message.
+    is_even(number: Annotated[int, "This is the number to check if it is even or not"]) -> bool:
+        Checks if a number is even.
+        Parameters:
+        number (int): Number to check if it is even or not.
+        Returns:
+        bool: True if number is even, False otherwise.
+    return_tools(methods: Annotated[list, "Dictionary containing all tools available in the ToolsAI class"]) -> list:
+        Returns all tools available in the ToolsAI class.
+        Parameters:
+        methods (list): Dictionary containing all tools available in the ToolsAI class.
+        Returns:
+        list: List of dictionaries containing method details.
+    """
     def __init__(self):
-        """__init__ function of ToolsAI class"""
         self.toolsai = self
 
     def greet_user(self, user: Annotated[str, "This is the name of the user"]):
-        """
-        Greet user
-
-        :param str user: This is the name of the user
-        :return: Greeting message
-        :rtype: str
-        """
         return f"Hello {user}! How can I help you today? My name is John."
     
     def is_even(self, number: Annotated[int, "This is the number to check if it is even or not"]):
-        """
-        Check if number is even
-
-        :param int number: Number to check if it is even or not
-        :return: True if number is even, False otherwise
-        :rtype: bool
-        """
         return number % 2 == 0
         
     def return_tools(self, methods: Annotated[list, "Dictionary containing all tools available in the ToolsAI class"]):
-        """Return all tools available in the ToolsAI class"""
         class_instance = self.toolsai
 
         tools = []
@@ -74,8 +83,3 @@ class AITools():
             
             tools.append(method_details)
         return tools
-    
-
-if __name__ == "__main__":
-    ai = AITools()
-    print(ai.return_tools(["greet_user", "is_even"]))

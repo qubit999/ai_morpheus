@@ -22,22 +22,99 @@ from helper import *
 from models import *
 
 class Token(BaseModel):
+    """
+    Represents a token with an access token and token type.
+
+    Attributes:
+        access_token (str): The access token.
+        token_type (str): The type of the token.
+    """
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
+    """
+    Represents token data with a username.
+
+    Attributes:
+        username (str | None): The username associated with the token.
+    """
     username: str | None = None
 
 class QueryParams:
+    """
+    Utility class for handling query parameters.
+    """
     def make_bool(self, value):
-        return not(value == "False" or value == "false" or value == "0" or value == 0 or value == False)
+        """
+        Converts a value to a boolean.
+
+        Args:
+            value: The value to convert.
+
+        Returns:
+            bool: The converted boolean value.
+        """
+        return value.lower() in ('true', '1', 't', 'y', 'yes')
 
     def __init__(self, boolable: str):
+        """
+        Initializes the QueryParams class with a boolean-convertible string.
+
+        Args:
+            boolable (str): The string to be converted to a boolean.
+        """
         self.boolable = self.make_bool(boolable)
 
 class Controller:
+    """
+    Controller class for handling various operations such as user authentication, password management, and database interactions.
 
+    Methods:
+        __init__:
+        verify_password:
+        get_password_hash:
+        authenticate_user:
+        create_access_token:
+            Creates a JWT access token with an optional expiration time.
+        get_current_user:
+            Retrieves the current user based on the provided JWT token.
+        get_current_active_user:
+            Retrieves the current active user based on the provided JWT token.
+        create_user:
+            Creates a new user with the provided information and IP address.
+        update_user:
+            Updates the user information for the given email.
+        disable_user:
+            Disables a user account.
+        get_response:
+            Gets a response from the AI model based on the provided messages.
+        get_streaming_response:
+            Gets a streaming response from the AI model based on the provided messages and advanced flag.
+        get_models:
+            Retrieves the available AI models.
+        create_thread:
+            Creates a new thread with the provided information.
+        get_threads:
+            Retrieves threads created by the current user.
+        get_thread:
+            Retrieves a specific thread based on the thread ID.
+        disable_thread:
+            Disables a thread based on the thread ID.
+        add_message_to_thread:
+            Adds a message to a specific thread.
+        get_messages_from_thread:
+            Retrieves messages from a specific thread.
+        get_setting:
+            Retrieves the settings for the current user.
+        update_setting:
+            Updates the settings for the current user.
+     """
+            
     def __init__(self):
+        """
+        Initializes the Controller class with necessary dependencies and configurations.
+        """
         self.db = Database()
         self.ai = AI()
         self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -168,7 +245,7 @@ class Controller:
         jwt_user = await self.get_current_user(current_user)
         return await self.db.get_threads(thread_id=thread_id, created_by=jwt_user["username"])
 
-    """
+
     async def update_thread(self, thread: Thread, current_user: Annotated[str, Depends(get_current_user)]):
         jwt_user = await self.get_current_user(current_user)
         thread.created_by = jwt_user["username"]
@@ -178,7 +255,7 @@ class Controller:
             if key == "created_by" or key == "created_at" or key == "thread_id":
                 continue
             await self.db.update_thread(created_by=jwt_user["username"], field=key, value=value)
-    """
+    
 
     async def disable_thread(self, thread_id: str, current_user: Annotated[str, Depends(get_current_user)]):
         jwt_user = await self.get_current_user(current_user)
@@ -207,5 +284,4 @@ class Controller:
         return await self.db.update_setting(created_by=jwt_user["username"], field=setting.key, value=setting.value)
     
 if __name__ == "main":
-    controller = Controller()
-    controller.get_response({"messages": [{"role": "user", "content": "Hello, how are you?"}], "model": "llama3.1:8b"}, "token")
+    pass

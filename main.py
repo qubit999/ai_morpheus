@@ -1,3 +1,32 @@
+"""
+Main module for the FastAPI application.
+
+This module sets up the FastAPI application, including middleware, routes, and configurations.
+It imports necessary libraries and modules, including custom controllers, database handlers, helpers, and models.
+
+Imports:
+    - FastAPI and related modules for building the API.
+    - CsrfProtect for CSRF protection.
+    - Various response classes for handling different types of HTTP responses.
+    - Jinja2Templates for template rendering.
+    - StaticFiles for serving static files.
+    - OAuth2PasswordBearer and OAuth2PasswordRequestForm for OAuth2 authentication.
+    - Standard libraries such as os, json, datetime, and logging.
+    - Third-party libraries such as jwt for JSON Web Token handling and passlib for password hashing.
+    - Pydantic for data validation and settings management.
+    - dotenv for loading environment variables from a .env file.
+    - Custom modules for controllers, database interactions, helpers, and models.
+
+Logging:
+    Configures logging to output debug level messages.
+
+Environment:
+    Loads environment variables from a .env file.
+
+Custom Modules:
+    Imports custom modules for controllers, database interactions, helpers, and models.
+"""
+
 from fastapi import Depends, FastAPI, HTTPException, status, Request
 from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError

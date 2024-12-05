@@ -17,6 +17,18 @@ class User(BaseModel):
     description: str | None = None
 
 class UserInDB(User):
+    """
+    UserInDB is a class that extends the User class to include additional fields 
+    specific to database storage.
+
+    Attributes:
+        password1 (str): The user's password.
+        registration_date (datetime | None): The date the user registered. Defaults to None.
+        last_login (datetime | None): The date the user last logged in. Defaults to None.
+        registration_ip (str | None): The IP address used during registration. Defaults to None.
+        last_ip (str | None): The IP address used during the last login. Defaults to None.
+        role (str | None): The role of the user. Defaults to "user".
+    """
     password1: str
     registration_date: datetime | None = None
     last_login: datetime | None = None
@@ -25,10 +37,28 @@ class UserInDB(User):
     role: str | None = "user"
 
 class Item(UserInDB):
+    """
+    Represents an item in the database.
+
+    Attributes:
+        item_id (str): The unique identifier for the item.
+        owner (str): The owner of the item.
+    """
     item_id: str
     owner: str
 
 class Thread(BaseModel):
+    """
+    Represents a discussion thread in the database.
+
+    Attributes:
+        thread_id (str): Unique identifier for the thread.
+        title (str): Title of the thread.
+        created_by (str): Username or identifier of the user who created the thread.
+        created_at (datetime): Timestamp when the thread was created.
+        last_updated (datetime | None): Timestamp when the thread was last updated, if applicable.
+        disabled (StrictBool): Indicates whether the thread is disabled. Defaults to False.
+    """
     thread_id: str
     title: str
     created_by: str
@@ -37,6 +67,16 @@ class Thread(BaseModel):
     disabled: StrictBool = False
 
 class Message(BaseModel):
+    """
+    Represents a message in the database.
+
+    Attributes:
+        message_id (str): Unique identifier for the message.
+        content (str): The content of the message.
+        created_by (str): The identifier of the user who created the message.
+        created_at (datetime): The timestamp when the message was created.
+        thread_id (str): The identifier of the thread to which the message belongs.
+    """
     message_id: str
     content: str
     created_by: str
@@ -44,6 +84,16 @@ class Message(BaseModel):
     thread_id: str
 
 class Payment(BaseModel):
+    """
+    Represents a payment record.
+
+    Attributes:
+        amount (float): The amount of the payment.
+        currency (str): The currency in which the payment was made.
+        paid_by (str): The entity that made the payment.
+        date (datetime): The date when the payment was made.
+        status (str | None): The status of the payment, which can be None.
+    """
     amount: float
     currency: str
     paid_by: str
@@ -51,11 +101,61 @@ class Payment(BaseModel):
     status: str | None = None
 
 class Setting(BaseModel):
+    """
+    Setting model representing a configuration setting.
+
+    Attributes:
+        created_by (str): The identifier of the user or system that created the setting.
+        key (str): The key or name of the setting.
+        value (str): The value associated with the key.
+    """
     created_by: str
     key: str
     value: str
 
 class Database:
+    """
+    A class to interact with the MongoDB database using asynchronous operations.
+    Attributes:
+        client (AsyncIOMotorClient): The MongoDB client.
+        db (Database): The MongoDB database.
+        users (Collection): The users collection.
+        threads (Collection): The threads collection.
+        payments (Collection): The payments collection.
+        settings (Collection): The settings collection.
+        messages (Collection): The messages collection.
+    Methods:
+        get_object_id(collection: str, key: str, value: str) -> str | None:
+            Retrieves the object ID from a specified collection based on a key-value pair.
+        create_user(user: UserInDB):
+            Creates a new user in the users collection.
+        get_user(**kwargs) -> dict | None:
+            Retrieves a user from the users collection based on provided search parameters.
+        update_user(email: str, field: str, value) -> UpdateResult | None:
+            Updates a user's field in the users collection based on the provided email.
+        create_thread(thread: Thread):
+            Creates a new thread in the threads collection.
+        get_threads(**kwargs) -> list | None:
+            Retrieves threads from the threads collection based on provided search parameters.
+        update_thread(thread_id: str, field: str, value) -> UpdateResult | None:
+            Updates a thread's field in the threads collection based on the provided thread ID.
+        add_message_to_thread(thread_id: str, message: str, user_id: str):
+            Adds a message to a thread and updates the thread's last updated timestamp.
+        get_thread_messages(thread_id: str, created_by: str) -> list | None:
+            Retrieves messages from a thread based on the thread ID and the user who created the messages.
+        create_payment(payment: Payment):
+            Creates a new payment in the payments collection.
+        get_payment(**kwargs) -> dict | None:
+            Retrieves a payment from the payments collection based on provided search parameters.
+        update_payment(paid_by: str, field: str, value):
+            Updates a payment's field in the payments collection based on the provided paid_by identifier.
+        create_setting(setting: Setting):
+            Creates a new setting in the settings collection.
+        get_setting(**kwargs) -> dict | None:
+            Retrieves a setting from the settings collection based on provided search parameters.
+        update_setting(created_by: str, field: str, value):
+            Updates a setting's field in the settings collection based on the provided created_by identifier.
+    """
     def __init__(self):
         self.client = AsyncIOMotorClient(os.getenv("MONGO_URI") or "mongodb://localhost:27017")
         self.db = self.client[os.getenv("MONGO_DB") or "db"]
@@ -214,6 +314,4 @@ class Database:
 
 
 if __name__ == "__main__":
-    from controller import Controller
-    db = Database()
-    db.messages.insert_one({"thread_id": "123", "content": "Hello", "created_by": "user", "created_at": datetime.now(timezone.utc)})
+    pass
