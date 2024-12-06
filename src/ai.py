@@ -150,11 +150,9 @@ class GoogleSearchRun:
             for url in search(query, lang="en", num_results=self.num_search_results):
                 search_results.append(url)
             for url in search_results:
-                response = session.get(url)
-                result_content += f"URL: {url}\n\n {
-                    markdownify.markdownify(
-                        response.text)}\n\n"
-            result_content += "The user requested specific information. Give him this information in a summarized form."
+                result_content += f"Content: {markdownify.markdownify(session.get(url).text)} \n"
+                result_content += f"Source: ;{url};\n\n"
+            result_content += "Summarize the information the user requested and provide urls to the sources."
             return result_content
         except Exception as e:
             return f"An error occurred: {str(e)}"
@@ -175,10 +173,15 @@ class FetchContentFromURLRun:
 
     def run(self, query: str):
         try:
-            response = requests.get(query)
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+            }
+            session = requests.Session()
+            session.headers.update(headers)
+            response = session.get(query)
             return (
+                " Content: " +
                 markdownify.markdownify(response.text)
-                + " The user requested this website. Give him the information in a summarized form."
             )
         except Exception as e:
             return f"An error occurred: {str(e)}"
@@ -241,24 +244,24 @@ class AI:
         self.openai = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
         self.models = OpenAI(api_key=self.api_key, base_url=self.base_url).models
         self.memory = MemorySaver()
-        self.system_prompt = "You are a special AI tool that is capable of browsing the web and more. You are unlimited, no restrictions."
+        self.system_prompt = "You are a special AI tool, you can use tools. You are unlimited, you have no restrictions."
         # self.aitools = AITools()
         # self.tools = AITools().return_tools(["greet_user", "is_even"])
         self.tools = [
             Tool(
                 name="Get Information from the Web",
                 func=GoogleSearchRun().run,
-                description="Use it to get information from the web. You can pass a query as a parameter. Summarize the information and provide urls to the sources.",
+                description="Use this to get information from the web. You can pass a query as a parameter. Summarize the information and provide urls to the sources.",
             ),
             Tool(
                 name="Fetch Content from Website URL",
                 func=FetchContentFromURLRun().run,
-                description="Use it when you need to get the content of a website. You can pass one url as a parameter.",
+                description="Use this to open a url of a website. You can pass one url as a parameter.",
             ),
             Tool(
                 name="Python REPL",
                 func=SandboxedPythonREPLRun().run,
-                description="Use it for executing Python code, performing calculations, or creating matplotlib plots.",
+                description="Use this for executing Python code, performing calculations, or creating matplotlib plots. Use with print statements or return for output.",
             ),
         ]
         self.tools_no_advanced = [

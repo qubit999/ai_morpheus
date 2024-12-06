@@ -347,7 +347,7 @@ async def get_threads(token: Annotated[str, Depends(controller.oauth2_scheme)]):
         return {"message": "Unauthorized"}
 
 
-"""
+
 @app.post("/threads/update/", response_class=JSONResponse)
 async def update_thread(thread: Thread, token: Annotated[str, Depends(controller.oauth2_scheme)]):
     result = await controller.update_thread(thread, current_user=token)
@@ -357,7 +357,7 @@ async def update_thread(thread: Thread, token: Annotated[str, Depends(controller
         return {"message": str(result)}
     elif result is False:
         return {"message": "Unauthorized"}
-"""
+
 
 
 @app.get("/threads/get/{thread_id}", response_class=JSONResponse)

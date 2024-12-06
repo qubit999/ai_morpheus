@@ -4,14 +4,124 @@ function getCookie(name) {
     return null;
 }
 
+function setCookie(name, value, days) {
+    let date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+}
+
+function deleteCookie(name) {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/`;
+}
+
 function isJSON(str) {
     try {
       JSON.parse(str);
       return true;
     } catch (e) {
+        console.log('Error:', e);
       return false;
     }
   }
+
+function createThread(payload) {
+    deleteCookie('thread_id');
+    const accessToken = getCookie('access_token');
+    fetch('/threads/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+        }, body: JSON.stringify(payload)
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        setCookie('thread_id', response.json().thread_id, 7);
+        thread_id = response.json().thread_id;
+        return thread_id;
+    }).catch(error => {
+        console.error('Error during fetch:', error);
+    });
+}
+
+function updateThread(payload) {
+    const accessToken = getCookie('access_token');
+    const thread_id = getCookie('thread_id');
+    fetch(`/threads/get/${thread_id}/add_message`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+        }, body: JSON.stringify(payload, thread_id)
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        if (response.json().successful) {
+            return true;
+        } else {
+            return null;
+        }
+    }).catch(error => {
+        console.error('Error during fetch:', error);
+    });
+}
+
+function getThread(thread_id) {
+    const accessToken = getCookie('access_token');
+    setCookie('thread_id', thread_id, 7);
+    fetch(`/threads/get/${thread_id}/messages`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+        }, body: JSON.stringify(payload)
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }).catch(error => {
+        console.error('Error during fetch:', error);
+    });
+}
+
+function getAllThreads() {
+    const accessToken = getCookie('access_token');
+    fetch('/model/get_all_threads', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+        }
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }).catch(error => {
+        console.error('Error during fetch:', error);
+    });
+}
+
+function disableThread(thread_id) {
+    const accessToken = getCookie('access_token');
+    fetch(`/threads/get/${thread_id}/disable`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+        }, body: JSON.stringify(payload)
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }).catch(error => {
+        console.error('Error during fetch:', error);
+    });
+}
 
 async function postAndStreamSSE(url, payload, result_element) {
     const accessToken = getCookie('access_token');
@@ -73,6 +183,12 @@ if(document.querySelector("#send_message")){
             payload[key] = value;
         });
         console.log('Payload:', payload); // Log the payload
+        let chatbox = document.querySelector("#chat");
+        let messages = formData.get('messages');
+        console.log('Messages:', messages);
+        let newMessage = document.createElement('p');
+        newMessage.textContent = `User: ${messages}`;
+        chatbox.appendChild(newMessage);
         await postAndStreamSSE('/model/streaming_response', payload, document.querySelector('#chat'));
     });
 }
